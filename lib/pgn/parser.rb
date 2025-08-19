@@ -160,7 +160,7 @@ module PGN
     rule(
       numeric_annotation_glyph: /
         \$\d+       | # dollar sign followed by an integer from 0 to 255
-        [\?!][\?!]?   # support the most used annotations directly
+        (?:!|!!|!\?|\+\/=|\+\/−|\+−|-\/\+|<=|=|=\/\+|=\/∞|=\/∞|==|\?|\?!|\?\?|N|RR|±|↑|↑|→|→|⇆|⇆|∆|∇|−\+|∓|∞|⌓|□|○|○|⟳|⟳|⨀|⨀|⨁|⨁|⩱|⩲|⯹|⯹)+
       /x
     )
   end
