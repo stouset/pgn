@@ -56,7 +56,7 @@ module PGN
         move.variations = variations
         move
       end
-      r[:comment].as { nil }
+      r[:comment]
     end
 
     rule(:san_move_annotated) do |r|
@@ -83,7 +83,27 @@ module PGN
     end
 
     rule(:variation) do |r|
-      r['(', :element_sequence, ')'].as { |_, sequence, _| sequence.reverse }
+      r['(', :element_sequence, ')'].as do |_, sequence, _|
+        reversed = sequence.reverse
+
+        # Attach standalone comments to following moves
+        pending_comment = nil
+        result = []
+
+        reversed.each do |element|
+          if element.is_a?(String) && element.start_with?('{') && element.end_with?('}')
+            pending_comment = element
+          elsif element.respond_to?(:notation)
+            if pending_comment
+              element.preceding_comment = pending_comment
+              pending_comment = nil
+            end
+            result << element
+          end
+        end
+
+        result
+      end
     end
 
     rule(
