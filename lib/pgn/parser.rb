@@ -83,7 +83,7 @@ module PGN
     end
 
     rule(:variation) do |r|
-      r['(', :element_sequence, ')'].as { |_, sequence, _| sequence }
+      r['(', :element_sequence, ')'].as { |_, sequence, _| sequence.reverse }
     end
 
     rule(
