@@ -56,7 +56,7 @@ module PGN
         move.variations = variations
         move
       end
-      r[:comment].as { nil }
+      r[:comment]
     end
 
     rule(:san_move_annotated) do |r|
@@ -83,7 +83,27 @@ module PGN
     end
 
     rule(:variation) do |r|
-      r['(', :element_sequence, ')'].as { |_, sequence, _| sequence }
+      r['(', :element_sequence, ')'].as do |_, sequence, _|
+        reversed = sequence.reverse
+
+        # Attach standalone comments to following moves
+        pending_comment = nil
+        result = []
+
+        reversed.each do |element|
+          if element.is_a?(String) && element.start_with?('{') && element.end_with?('}')
+            pending_comment = element
+          elsif element.respond_to?(:notation)
+            if pending_comment
+              element.preceding_comment = pending_comment
+              pending_comment = nil
+            end
+            result << element
+          end
+        end
+
+        result
+      end
     end
 
     rule(
@@ -133,13 +153,13 @@ module PGN
     rule(
       san_move: %r{
         (
-          --                           |    # "don't care" move (used in variations)
-          [O0](-[O0]){1,2}             |    # castling (O-O, O-O-O)
-          [a-h][1-8]                   |    # pawn moves (e4, d7)
-          [BKNQR][a-h1-8]?x?[a-h][1-8] |    # major piece moves w/ optional specifier
-                                            # and capture
-                                            # (Bd2, N4c3, Raxc1)
-          [a-h][1-8]?x[a-h][1-8]            # pawn captures
+          --                              |    # "don't care" move (used in variations)
+          [O0](-[O0]){1,2}                |    # castling (O-O, O-O-O)
+          [a-h][1-8]                      |    # pawn moves (e4, d7)
+          [BKNQR][a-h]?[1-8]?x?[a-h][1-8] |    # major piece moves w/ optional specifier
+                                               # and capture
+                                               # (Bd2, N4c3, Raxc1)
+          [a-h][1-8]?x[a-h][1-8]               # pawn captures
         )
         (
           =[BNQR]                            # optional promotion (d8=Q)
@@ -160,7 +180,7 @@ module PGN
     rule(
       numeric_annotation_glyph: /
         \$\d+       | # dollar sign followed by an integer from 0 to 255
-        [\?!][\?!]?   # support the most used annotations directly
+        (?:!|!!|!\?|\+\/=|\+\/−|\+−|-\/\+|<=|=|=\/\+|=\/∞|=\/∞|==|\?|\?!|\?\?|N|RR|±|↑|↑|→|→|⇆|⇆|∆|∇|−\+|∓|∞|⌓|□|○|○|⟳|⟳|⨀|⨀|⨁|⨁|⩱|⩲|⯹|⯹)+
       /x
     )
   end

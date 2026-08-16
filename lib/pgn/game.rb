@@ -2,13 +2,14 @@ require 'io/console'
 
 module PGN
   class MoveText
-    attr_accessor :notation, :annotation, :comment, :variations
+    attr_accessor :notation, :annotation, :comment, :variations, :preceding_comment
     
-    def initialize(notation, annotation = nil, comment = nil, variations = nil)
+    def initialize(notation, annotation = nil, comment = nil, variations = nil, preceding_comment = nil)
       @notation = notation
       @annotation = annotation
       @comment = comment
       @variations = variations
+      @preceding_comment = preceding_comment
     end
     
     def ==(m)

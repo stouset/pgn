@@ -17,7 +17,7 @@ module PGN
   #
   # @see http://www.chessclub.com/help/PGN-spec PGN Specification
   #
-  def self.parse(pgn, encoding = Encoding::ISO_8859_1)
+  def self.parse(pgn, encoding = Encoding::UTF_8)
     pgn.force_encoding(encoding) if encoding
 
     PGN::Parser.new.parse(pgn).map do |game|
