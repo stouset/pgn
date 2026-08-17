@@ -131,6 +131,20 @@ module PGN
     #   PGN::FEN.start.to_s #=> "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
     #
     def to_s
+      self.to_a.join(" ")
+    end
+
+    def inspect
+      self.to_s
+    end
+
+    def ==(other)
+      other.is_a?(self.class) && self.to_a == other.to_a
+    end
+
+    protected 
+
+    def to_a
       [
         self.board_string,
         self.active,
@@ -138,11 +152,7 @@ module PGN
         self.en_passant,
         self.halfmove,
         self.fullmove,
-      ].join(" ")
-    end
-
-    def inspect
-      self.to_s
+      ]
     end
   end
 end
